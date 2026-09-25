@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StackFlex | Learn Data Analytics</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0b0e14;--panel:#141a24;--border:#2b3545;
+  --text:#edf2fa;--muted:#aab6c8;--green:#3ddc97;
+  --blue:#5b8cff;--error:#ff92a2;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.65 system-ui,sans-serif;
+}
+header{
+  border-bottom:1px solid var(--border);
+  padding:18px max(20px,calc((100vw - 1100px)/2));
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+}
+.logo{font-size:24px;font-weight:850;letter-spacing:-1px}
+.logo span{color:var(--green)}
+.tag{font-size:13px;color:var(--muted)}
+main{max-width:1100px;margin:auto;padding:32px 20px 64px}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.15}
+h2,h3{line-height:1.3}
+p{max-width:78ch}
+.muted{color:var(--muted)}
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:24px;border-radius:16px;margin:20px 0;
+}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.grid .card{margin:0}
+button{
+  font:inherit;cursor:pointer;border:1px solid var(--border);
+  background:#1b2432;color:var(--text);
+  padding:10px 16px;border-radius:9px;
+}
+button:hover{border-color:var(--green)}
+button:focus-visible,input:focus-visible{
+  outline:3px solid var(--blue);outline-offset:3px;
+}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--green);color:#082317;font-weight:750}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}
+.tabs button[aria-pressed="true"]{
+  background:var(--green);color:#082317;font-weight:750;
+}
+progress{width:100%;height:14px;accent-color:var(--green)}
+pre{
+  background:#090d13;padding:18px;border-radius:10px;
+  overflow:auto;border:1px solid var(--border);
+  line-height:1.65;
+}
+code{font-family:Consolas,monospace;font-size:14px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:14px}
+th,td{padding:11px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--green)}
+fieldset{border:0;padding:0;margin:18px 0}
+legend{font-weight:700;margin-bottom:10px}
+label{
+  display:block;padding:12px;margin:8px 0;border:1px solid var(--border);
+  border-radius:9px;cursor:pointer;
+}
+label:hover{background:#202a39}
+input{margin-right:10px;accent-color:var(--green)}
+.feedback{margin-top:14px}
+.correct{color:var(--green)}
+.incorrect{color:var(--error)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+small{color:var(--muted)}
+footer{margin-top:30px;color:var(--muted);font-size:13px}
+[hidden]{display:none!important}
+@media(max-width:650px){
+  .grid{grid-template-columns:1fr}
+  .card{padding:18px}
+  header{align-items:flex-start}
+  .tag{max-width:130px;text-align:right}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">STACK<span>FLEX</span></div>
+  <div class="tag">Python + SQL for data analytics</div>
+</header>
+
+<main>
+  <section>
+    <p class="muted">LEARN • PRACTISE • EXPLAIN</p>
+    <h1>Turn data into confident decisions.</h1>
+    <p class="muted">
+      Learn with a fictional online retailer, Nova Retail.
+      Follow three levels in each subject and solve practical
+      questions using the same small, consistent dataset.
+    </p>
+  </section>
+
+  <section class="card" aria-labelledby="progress-title">
+    <h2 id="progress-title">Your progress</h2>
+    <p id="progress-text" aria-live="polite"></p>
+    <progress id="progress-bar" max="18" value="0"
+      aria-label="Exercises solved"></progress>
+    <small id="storage-note">
+      Progress is saved on this browser and device.
+    </small>
+    <div class="actions">
+      <button id="reset">Reset progress</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The business scenario</h2>
+    <p>
+      Nova Retail wants to understand completed sales, customer value,
+      and changes in monthly sales. All amounts are in USD.
+      Cancelled orders are excluded from completed sales.
+      Refunds, tax, and delivery fees are outside this example.
+    </p>
+    <p>
+      <strong>Table grain:</strong> each customer row represents one
+      customer; each order row represents one order.
+      <code>customers.customer_id</code> is unique.
+      <code>orders.customer_id</code> links an order to its customer.
+    </p>
+
+    <h3>customers</h3>
+    <div class="table-wrap">
+      <table>
+        <caption class="muted">Five fictional customers</caption>
+        <thead><tr>
+          <th scope="col">customer_id</th>
+          <th scope="col">name</th>
+          <th scope="col">region</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Amina</td><td>North</td></tr>
+          <tr><td>2</td><td>Ben</td><td>South</td></tr>
+          <tr><td>3</td><td>Chloe</td><td>North</td></tr>
+          <tr><td>4</td><td>Diego</td><td>West</td></tr>
+          <tr><td>5</td><td>Eva</td><td>South</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>orders</h3>
+    <div class="table-wrap">
+      <table>
+        <caption class="muted">Six orders across January and February 2026</caption>
+        <thead><tr>
+          <th scope="col">order_id</th>
+          <th scope="col">customer_id</th>
+          <th scope="col">order_date</th>
+          <th scope="col">amount</th>
+          <th scope="col">status</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>101</td><td>1</td><td>2026-01-05</td><td>120</td><td>completed</td></tr>
+          <tr><td>102</td><td>2</td><td>2026-01-10</td><td>80</td><td>completed</td></tr>
+          <tr><td>103</td><td>1</td><td>2026-02-02</td><td>200</td><td>completed</td></tr>
+          <tr><td>104</td><td>3</td><td>2026-02-08</td><td>150</td><td>cancelled</td></tr>
+          <tr><td>105</td><td>4</td><td>2026-02-12</td><td>50</td><td>completed</td></tr>
+          <tr><td>106</td><td>2</td><td>2026-02-15</td><td>100</td><td>completed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">
+      Sanity checks: 5 customers, 6 orders, 5 completed orders,
+      and $550 in completed sales. Eva has no orders.
+    </p>
+  </section>
+
+  <nav class="tabs" aria-label="Choose a subject">
+    <button data-track="python" aria-pressed="true">Python</button>
+    <button data-track="sql" aria-pressed="false">SQL</button>
+  </nav>
+
+  <div id="levels" class="tabs" role="group" aria-label="Choose a level"></div>
+  <section id="lesson" aria-label="Current lesson"></section>
+
+  <footer>
+    Learning prototype · Six introductory modules, not a complete curriculum.
+    Exercises are knowledge checks; code examples run in your own environment.
+    SQL examples use MySQL 8+. Python data analysis examples require pandas.
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+const pythonSetup = `import pandas as pd
+
+customers = pd.DataFrame([
+    (1, "Amina", "North"),
+    (2, "Ben", "South"),
+    (3, "Chloe", "North"),
+    (4, "Diego", "West"),
+    (5, "Eva", "South"),
+], columns=["customer_id", "name", "region"])
+
+orders = pd.DataFrame([
+    (101, 1, "2026-01-05", 120, "completed"),
+    (102, 2, "2026-01-10", 80, "completed"),
+    (103, 1, "2026-02-02", 200, "completed"),
+    (104, 3, "2026-02-08", 150, "cancelled"),
+    (105, 4, "2026-02-12", 50, "completed"),
+    (106, 2, "2026-02-15", 100, "completed"),
+], columns=[
+    "order_id", "customer_id", "order_date", "amount", "status"
+])
+
+orders["order_date"] = pd.to_datetime(orders["order_date"])
+completed = orders.loc[orders["status"].eq("completed")].copy()`;
+
+const sqlSetup = `-- Run once in a practice database using MySQL 8+.
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    region VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_date DATE NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+INSERT INTO customers VALUES
+(1, 'Amina', 'North'),
+(2, 'Ben', 'South'),
+(3, 'Chloe', 'North'),
+(4, 'Diego', 'West'),
+(5, 'Eva', 'South');
+
+INSERT INTO orders VALUES
+(101, 1, '2026-01-05', 120, 'completed'),
+(102, 2, '2026-01-10', 80, 'completed'),
+(103, 1, '2026-02-02', 200, 'completed'),
+(104, 3, '2026-02-08', 150, 'cancelled'),
+(105, 4, '2026-02-12', 50, 'completed'),
+(106, 2, '2026-02-15', 100, 'completed');`;
+
+const curriculum = {
+  python: [
+    {
+      title: "Beginner — values, lists, and conditions",
+      goal: "Calculate a basic metric and apply a business rule.",
+      explanation:
+        "Variables name values. Lists hold multiple values. sum() adds numbers, " +
+        "len() counts items, and conditions decide which records to include. " +
+        "Define which orders count before calculating a metric.",
+      example: `# Amounts for completed orders only
+amounts = [120, 80, 200, 50, 100]
+
+total = sum(amounts)
+average = total / len(amounts)
+
+print(total)       # 550
+print(average)     # 110.0
+
+# A dictionary represents one order.
+order = {"amount": 150, "status": "cancelled"}
+
+if order["status"] == "completed":
+    print("Include in completed sales")
+else:
+    print("Exclude from completed sales")`,
+      takeaway:
+        "Average completed order value is $110. Counting cancelled orders would change the meaning of the metric.",
+      exercises: [
+        {
+          question: "What does len(amounts) return?",
+          code: "amounts = [120, 80, 200, 50, 100]\nprint(len(amounts))",
+          options: ["550", "5", "6"],
+          answer: 1,
+          hint: "len() counts list elements; it does not add them.",
+          why: "There are five amounts, one for each completed order."
+        },
+        {
+          question: "How many completed orders are worth at least $100?",
+          code: "sum(1 for amount in [120, 80, 200, 50, 100]\n    if amount >= 100)",
+          options: ["2", "4", "3"],
+          answer: 2,
+          hint: "At least includes an amount equal to 100.",
+          why: "The qualifying amounts are 120, 200, and 100: three orders."
+        },
+        {
+          question: "Which condition correctly includes only completed orders?",
+          options: [
+            'order["status"] == "completed"',
+            'order["amount"] > 0',
+            'order["status"] != "completed"'
+          ],
+          answer: 0,
+          hint: "A cancelled order can still have a positive amount.",
+          why: "The status comparison applies the business rule directly."
+        }
+      ]
+    },
+    {
+      title: "Intermediate — filter, group, and join",
+      goal: "Use pandas to summarize completed sales by region.",
+      explanation:
+        "A DataFrame is a table. .loc filters rows; merge() combines related " +
+        "tables; groupby() calculates metrics for each category. Checking join " +
+        "cardinality helps prevent accidental duplication of sales.",
+      example: `# Run the Python dataset setup first.
+completed = orders.loc[orders["status"].eq("completed")].copy()
+
+enriched = completed.merge(
+    customers,
+    on="customer_id",
+    how="left",
+    validate="many_to_one"
+)
+
+regional_sales = (
+    enriched.groupby("region")["amount"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print(regional_sales)
+# North    320
+# South    180
+# West      50`,
+      takeaway:
+        "North leads this sample in completed sales. That alone does not establish why, or predict future performance.",
+      exercises: [
+        {
+          question: "What is North's completed sales total after the join?",
+          options: ["470", "320", "200"],
+          answer: 1,
+          hint: "Exclude Chloe's cancelled order.",
+          why: "Amina's completed orders total 120 + 200 = $320."
+        },
+        {
+          question: "What does this expression return?",
+          code: 'completed["customer_id"].nunique()',
+          options: ["5", "4", "3"],
+          answer: 2,
+          hint: "Count distinct customers, not orders.",
+          why: "Customers 1, 2, and 4 placed completed orders: three customers."
+        },
+        {
+          question: "Which merge keeps all five customers, including Eva?",
+          options: [
+            'customers.merge(completed, on="customer_id", how="left")',
+            'customers.merge(completed, on="customer_id", how="inner")',
+            'completed.merge(customers, on="customer_id", how="left")'
+          ],
+          answer: 0,
+          hint: "A left merge preserves every row of its left-hand table.",
+          why:
+            "Start with customers and use a left merge. Customers without completed " +
+            "orders remain, with missing order fields; repeat buyers produce multiple rows."
+        }
+      ]
+    },
+    {
+      title: "Advanced — time trends and data validation",
+      goal: "Calculate monthly growth and recognize limits in your conclusions.",
+      explanation:
+        "Datetime columns support time analysis. Aggregate sales by month before " +
+        "calculating changes. Reindexing makes missing months explicit. " +
+        "pct_change() returns a fraction, so multiply by 100 for a percentage. " +
+        "A zero previous-month total needs special treatment.",
+      example: `# Run the Python dataset setup first.
+monthly = (
+    completed
+    .assign(month=completed["order_date"].dt.to_period("M"))
+    .groupby("month")["amount"]
+    .sum()
+    .sort_index()
+)
+
+# This practice dataset covers January through February.
+months = pd.period_range("2026-01", "2026-02", freq="M")
+monthly = monthly.reindex(months, fill_value=0)
+
+previous = monthly.shift(1)
+growth_pct = monthly.pct_change(fill_method=None).mul(100)
+growth_pct = growth_pct.where(previous.ne(0))
+
+print(monthly)
+# 2026-01    200
+# 2026-02    350
+
+print(growth_pct)
+# 2026-01     NaN
+# 2026-02    75.0
+
+assert orders["order_id"].is_unique
+assert orders["customer_id"].isin(customers["customer_id"]).all()`,
+      takeaway:
+        "February sales increased 75% over January. Two months of imagined data cannot establish a lasting trend or its cause.",
+      exercises: [
+        {
+          question: "What is the percentage increase from $200 to $350?",
+          options: ["150%", "75%", "175%"],
+          answer: 1,
+          hint: "Use (new - old) / old × 100.",
+          why: "(350 - 200) / 200 × 100 = 75%."
+        },
+        {
+          question: "Why is January's growth value missing?",
+          options: [
+            "January had no sales.",
+            "The dates are invalid.",
+            "There is no previous month in the analysis."
+          ],
+          answer: 2,
+          hint: "Growth needs a comparison period.",
+          why: "January has sales, but this dataset contains no December comparison."
+        },
+        {
+          question: "Which check detects duplicate order identifiers?",
+          options: [
+            'orders["order_id"].is_unique',
+            'orders["amount"].sum() > 0',
+            'orders["status"].notna().all()'
+          ],
+          answer: 0,
+          hint: "The order identifier defines the table's one-order-per-row grain.",
+          why: "is_unique returns False if order_id values repeat. Investigate duplicates before aggregating."
+        }
+      ]
+    }
+  ],
+  sql: [
+    {
+      title: "Beginner — SELECT, WHERE, and aggregation",
+      goal: "Retrieve completed orders and calculate sales metrics.",
+      explanation:
+        "SELECT chooses columns or calculations. FROM identifies the table. " +
+        "WHERE filters rows before aggregation. SUM adds values, COUNT counts " +
+        "rows, and AVG calculates the mean. ORDER BY controls result order.",
+      example: `SELECT order_id, amount
+FROM orders
+WHERE status = 'completed'
+ORDER BY amount DESC, order_id;
+
+SELECT
+    COUNT(*) AS completed_orders,
+    SUM(amount) AS completed_sales,
+    AVG(amount) AS average_order_value
+FROM orders
+WHERE status = 'completed';
+
+-- completed_orders: 5
+-- completed_sales: 550.00
+-- average_order_value: 110.00`,
+      takeaway:
+        "Filtering by order status makes the calculation match the business question.",
+      exercises: [
+        {
+          question: "Which WHERE clause selects completed orders worth at least $100?",
+          options: [
+            "WHERE status = 'completed' OR amount >= 100",
+            "WHERE status = 'completed' AND amount >= 100",
+            "WHERE status = 'completed' AND amount > 100"
+          ],
+          answer: 1,
+          hint: "Both conditions must hold, and exactly $100 qualifies.",
+          why: "AND enforces both conditions; >= includes the boundary value."
+        },
+        {
+          question: "What is the result of this query?",
+          code: "SELECT SUM(amount)\nFROM orders\nWHERE status = 'completed';",
+          options: ["700", "110", "550"],
+          answer: 2,
+          hint: "The $150 cancelled order is excluded.",
+          why: "120 + 80 + 200 + 50 + 100 = $550."
+        },
+        {
+          question: "Which order appears first?",
+          code: "SELECT order_id, amount\nFROM orders\nWHERE status = 'completed'\nORDER BY amount DESC, order_id\nLIMIT 1;",
+          options: ["103", "101", "106"],
+          answer: 0,
+          hint: "DESC puts the largest amount first.",
+          why: "Order 103 has the largest completed amount: $200."
+        }
+      ]
+    },
+    {
+      title: "Intermediate — JOIN, GROUP BY, and HAVING",
+      goal: "Summarize customer activity without losing customers with no completed orders.",
+      explanation:
+        "LEFT JOIN keeps every row from the left table. Put the completed-status " +
+        "condition in ON to preserve customers without matching completed orders. " +
+        "GROUP BY forms customer groups; HAVING filters aggregated groups. " +
+        "COUNT(o.order_id) counts matched orders, while COALESCE turns a missing sum into zero.",
+      example: `SELECT
+    c.customer_id,
+    c.name,
+    COUNT(o.order_id) AS completed_orders,
+    COALESCE(SUM(o.amount), 0) AS completed_sales
+FROM customers AS c
+LEFT JOIN orders AS o
+    ON c.customer_id = o.customer_id
+    AND o.status = 'completed'
+GROUP BY c.customer_id, c.name
+ORDER BY completed_sales DESC, c.customer_id;
+
+-- Amina: 2 orders, 320
+-- Ben:   2 orders, 180
+-- Diego: 1 order,   50
+-- Chloe: 0 orders,   0
+-- Eva:   0 orders,   0`,
+      takeaway:
+        "Customers with zero completed orders are relevant to conversion analysis. Keep them when the question requires the full customer base.",
+      exercises: [
+        {
+          question: "Which HAVING clause finds customers with at least two completed orders?",
+          options: [
+            "HAVING COUNT(o.order_id) > 2",
+            "HAVING COUNT(o.order_id) >= 2",
+            "HAVING SUM(o.amount) >= 2"
+          ],
+          answer: 1,
+          hint: "The requirement concerns order count, not spending.",
+          why: "COUNT(o.order_id) >= 2 includes Amina and Ben."
+        },
+        {
+          question: "How many rows does the example query return?",
+          options: ["3", "6", "5"],
+          answer: 2,
+          hint: "It groups the left-joined result by customer.",
+          why: "All five customers remain, with one result row per customer."
+        },
+        {
+          question: "Why use COUNT(o.order_id) instead of COUNT(*) here?",
+          options: [
+            "It ignores NULL order IDs for customers with no matching orders.",
+            "It automatically removes duplicate orders.",
+            "It adds order amounts."
+          ],
+          answer: 0,
+          hint: "A left join still produces a customer row when there is no matching order.",
+          why:
+            "COUNT(*) would count that unmatched row as 1. COUNT(o.order_id) " +
+            "ignores its NULL order ID and correctly reports 0."
+        }
+      ]
+    },
+    {
+      title: "Advanced — CTEs and window functions",
+      goal: "Compare monthly totals and rank customers by completed sales.",
+      explanation:
+        "A common table expression (CTE) names an intermediate query. LAG reads " +
+        "the previous row in a defined order. NULLIF prevents division by zero. " +
+        "DENSE_RANK assigns equal ranks to ties without skipping the next rank. " +
+        "For longer time series, include a calendar so missing months are not skipped.",
+      example: `WITH monthly AS (
+    SELECT
+        DATE_FORMAT(order_date, '%Y-%m') AS month,
+        SUM(amount) AS sales
+    FROM orders
+    WHERE status = 'completed'
+    GROUP BY DATE_FORMAT(order_date, '%Y-%m')
+),
+compared AS (
+    SELECT
+        month,
+        sales,
+        LAG(sales) OVER (ORDER BY month) AS previous_sales
+    FROM monthly
+)
+SELECT
+    month,
+    sales,
+    previous_sales,
+    ROUND(
+        100.0 * (sales - previous_sales)
+        / NULLIF(previous_sales, 0),
+        2
+    ) AS growth_pct
+FROM compared
+ORDER BY month;
+
+-- January:  200, previous NULL, growth NULL
+-- February: 350, previous 200,  growth 75.00`,
+      takeaway:
+        "Window functions compare rows without collapsing them. Here both months are present; a gap would make LAG refer to the previous available month.",
+      exercises: [
+        {
+          question: "What previous_sales value does LAG return for February?",
+          options: ["350", "200", "550"],
+          answer: 1,
+          hint: "The window orders monthly rows from earliest to latest.",
+          why: "The preceding row is January, with $200 in completed sales."
+        },
+        {
+          question: "What does NULLIF(previous_sales, 0) do when previous_sales is zero?",
+          options: [
+            "Replaces zero with one.",
+            "Removes the month from the result.",
+            "Returns NULL, so the growth calculation is NULL."
+          ],
+          answer: 2,
+          hint: "NULLIF(a, b) returns NULL when a equals b.",
+          why: "Percentage growth from a zero base is undefined; the query returns NULL instead of dividing by zero."
+        },
+        {
+          question: "What rank does Ben receive?",
+          code: `WITH customer_sales AS (
+    SELECT customer_id, SUM(amount) AS sales
+    FROM orders
+    WHERE status = 'completed'
+    GROUP BY customer_id
+)
+SELECT customer_id, sales,
+    DENSE_RANK() OVER (ORDER BY sales DESC) AS sales_rank
+FROM customer_sales
+ORDER BY sales_rank, customer_id;`,
+          options: ["2", "1", "3"],
+          answer: 0,
+          hint: "Compare Amina's $320, Ben's $180, and Diego's $50.",
+          why: "Ben has the second-highest completed sales total, so his rank is 2."
+        }
+      ]
+    }
+  ]
+};
+
+const KEY = "stackflex-learning-v1";
+let solved = {};
+let track = "python";
+let level = 0;
+let storageAvailable = true;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+  if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+    solved = saved;
+  }
+} catch {
+  storageAvailable = false;
+}
+
+const validIds = Object.entries(curriculum).flatMap(([subject, levels]) =>
+  levels.flatMap((lesson, levelIndex) =>
+    lesson.exercises.map((_, exerciseIndex) =>
+      `${subject}-${levelIndex}-${exerciseIndex}`
+    )
+  )
+);
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  }[character]));
+}
+
+function exerciseId(index) {
+  return `${track}-${level}-${index}`;
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(solved));
+  } catch {
+    storageAvailable = false;
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = validIds.filter(id => solved[id] === true).length;
+  document.getElementById("progress-text").textContent =
+    `${count} of 18 exercises solved • ${Math.round(count / 18 * 100)}%`;
+  document.getElementById("progress-bar").value = count;
+  document.getElementById("storage-note").textContent = storageAvailable
+    ? "Progress is saved on this browser and device."
+    : "Browser storage is unavailable. Progress will last only for this session.";
+}
+
+function render() {
+  document.querySelectorAll("[data-track]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.track === track));
+  });
+
+  const levels = curriculum[track];
+  document.getElementById("levels").innerHTML = levels.map((item, index) => {
+    const complete = item.exercises.every(
+      (_, exerciseIndex) => solved[`${track}-${index}-${exerciseIndex}`] === true
+    );
+    return `<button data-level="${index}"
+      aria-pressed="${index === level}">
+      Level ${index + 1}${complete ? " ✓" : ""}
+    </button>`;
+  }).join("");
+
+  const lesson = levels[level];
+  const setup = track === "python" ? pythonSetup : sqlSetup;
+
+  document.getElementById("lesson").innerHTML = `
+    <article class="card">
+      <p class="muted">${track.toUpperCase()} / LEVEL ${level + 1}</p>
+      <h2>${escapeHTML(lesson.title)}</h2>
+      <p><strong>Learning goal:</strong> ${escapeHTML(lesson.goal)}</p>
+      <p>${escapeHTML(lesson.explanation)}</p>
+      <details>
+        <summary>Dataset setup — run this in your own environment</summary>
+        <pre><code>${escapeHTML(setup)}</code></pre>
+      </details>
+      <h3>Worked example</h3>
+      <pre><code>${escapeHTML(lesson.example)}</code></pre>
+      <p><strong>Business interpretation:</strong>
+        ${escapeHTML(lesson.takeaway)}
+      </p>
+    </article>
+
+    <h2>Practise — three exercises</h2>
+    <p class="muted">
+      Predict the answer before selecting it. You can retry and use hints.
+      These checks measure understanding, not independent coding mastery.
+    </p>
+
+    ${lesson.exercises.map((exercise, index) => {
+      const done = solved[exerciseId(index)] === true;
+      return `
+        <article class="card">
+          <h3>Exercise ${index + 1}
+            <span id="badge-${index}">${done ? "✓ Solved" : ""}</span>
+          </h3>
+          ${exercise.code
+            ? `<pre><code>${escapeHTML(exercise.code)}</code></pre>` : ""}
+          <fieldset>
+            <legend>${escapeHTML(exercise.question)}</legend>
+            ${exercise.options.map((option, optionIndex) => `
+              <label>
+                <input type="radio" name="exercise-${index}" value="${optionIndex}">
+                ${escapeHTML(option)}
+              </label>
+            `).join("")}
+          </fieldset>
+          <div class="actions">
+            <button class="primary" data-check="${index}">Check answer</button>
+            <button data-hint="${index}"
+              aria-expanded="false" aria-controls="hint-${index}">Show hint</button>
+          </div>
+          <p id="hint-${index}" class="muted" hidden>
+            ${escapeHTML(exercise.hint)}
+          </p>
+          <div id="feedback-${index}" class="feedback"
+            role="status" aria-live="polite"></div>
+        </article>`;
+    }).join("")}
+
+    <div class="card">
+      <h3 id="level-status"></h3>
+      <p class="muted">
+        After the exercises, recreate the worked example yourself and explain
+        what its result means for the business.
+      </p>
+      <div class="actions">
+        <button id="previous" ${level === 0 ? "disabled" : ""}>Previous level</button>
+        <button id="next" class="primary">
+          ${level < 2 ? "Next level" : track === "python" ? "Start SQL" : "Review Python"}
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll("[data-level]").forEach(button => {
+    button.addEventListener("click", () => {
+      level = Number(button.dataset.level);
+      render();
+    });
+  });
+
+  document.querySelectorAll("[data-check]").forEach(button => {
+    button.addEventListener("click", () => checkAnswer(Number(button.dataset.check)));
+  });
+
+  document.querySelectorAll("[data-hint]").forEach(button => {
+    button.addEventListener("click", () => {
+      const hint = document.getElementById(`hint-${button.dataset.hint}`);
+      hint.hidden = !hint.hidden;
+      button.textContent = hint.hidden ? "Show hint" : "Hide hint";
+      button.setAttribute("aria-expanded", String(!hint.hidden));
+    });
+  });
+
+  document.getElementById("previous").addEventListener("click", () => {
+    if (level > 0) level--;
+    render();
+    scrollToLesson();
+  });
+
+  document.getElementById("next").addEventListener("click", () => {
+    if (level < 2) {
+      level++;
+    } else {
+      track = track === "python" ? "sql" : "python";
+      level = 0;
+    }
+    render();
+    scrollToLesson();
+  });
+
+  updateLevelStatus();
+  updateProgress();
+}
+
+function checkAnswer(index) {
+  const exercise = curriculum[track][level].exercises[index];
+  const selected = document.querySelector(
+    `input[name="exercise-${index}"]:checked`
+  );
+  const feedback = document.getElementById(`feedback-${index}`);
+
+  if (!selected) {
+    feedback.className = "feedback";
+    feedback.textContent = "Select an answer first.";
+    return;
+  }
+
+  if (Number(selected.value) === exercise.answer) {
+    solved[exerciseId(index)] = true;
+    feedback.className = "feedback correct";
+    feedback.textContent = `Correct. ${exercise.why}`;
+    document.getElementById(`badge-${index}`).textContent = "✓ Solved";
+    saveProgress();
+    updateLevelStatus();
+  } else {
+    feedback.className = "feedback incorrect";
+    feedback.textContent = `Not quite. ${exercise.hint} Try again.`;
+  }
+}
+
+function updateLevelStatus() {
+  const count = curriculum[track][level].exercises.filter(
+    (_, index) => solved[exerciseId(index)] === true
+  ).length;
+
+  document.getElementById("level-status").textContent = count === 3
+    ? "Level practice complete — 3 of 3 solved."
+    : `Level practice — ${count} of 3 solved.`;
+
+  const activeLevel = document.querySelector(`[data-level="${level}"]`);
+  if (activeLevel) {
+    activeLevel.textContent = `Level ${level + 1}${count === 3 ? " ✓" : ""}`;
+  }
+}
+
+function scrollToLesson() {
+  document.getElementById("lesson").scrollIntoView({block:"start"});
+}
+
+document.querySelectorAll("[data-track]").forEach(button => {
+  button.addEventListener("click", () => {
+    track = button.dataset.track;
+    level = 0;
+    render();
+  });
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Reset all saved exercise progress on this browser?")) {
+    solved = {};
+    saveProgress();
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
